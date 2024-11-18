@@ -10,6 +10,7 @@ import {
     UpdateDateColumn,
   } from 'typeorm';
   import * as bcrypt from 'bcrypt';
+import { Order } from '../order/order.entity';
   
   @Entity('users')
   export class User {
@@ -33,6 +34,9 @@ import {
   
     @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
     deleted_at: Date;
+
+    @OneToMany(() => Order, order => order.user)
+    orders: Order[];
 
     @BeforeInsert()
     @BeforeUpdate()
