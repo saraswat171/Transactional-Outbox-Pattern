@@ -1,14 +1,13 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateUsers1731932865964 implements MigrationInterface {
-  name = 'CreateUsers1731932865964';
+export class CreateOutboxMessage1731999767833 implements MigrationInterface {
+  name = 'CreateOutboxMessage1731999767833';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-
-    // Create the "users" table
+    // Create the "outbox_message" table
     await queryRunner.createTable(
       new Table({
-        name: 'users',
+        name: 'outbox_message',
         columns: [
           {
             name: 'id',
@@ -19,23 +18,43 @@ export class CreateUsers1731932865964 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'name',
-            type: 'varchar',
-            length: '100',
-            isNullable: false,
-          },
-          {
-            name: 'email',
-            type: 'varchar',
-            length: '100',
+            name: 'message_id',
+            type: 'uuid',
             isUnique: true,
             isNullable: false,
           },
           {
-            name: 'password',
+            name: 'type',
             type: 'varchar',
-            length: '250',
+            length: '255',
             isNullable: false,
+          },
+          {
+            name: 'headers',
+            type: 'json',
+            isNullable: false,
+          },
+          {
+            name: 'properties',
+            type: 'json',
+            isNullable: false,
+          },
+          {
+            name: 'body',
+            type: 'json',
+            isNullable: false,
+          },
+          {
+            name: 'status',
+            type: 'enum',
+            enum: ['PENDING', 'SENT', 'FAILED'],
+            default: `'PENDING'`,
+            isNullable: false,
+          },
+          {
+            name: 'sent_at',
+            type: 'timestamp',
+            isNullable: true,
           },
           {
             name: 'created_at',
@@ -49,31 +68,14 @@ export class CreateUsers1731932865964 implements MigrationInterface {
             default: 'now()',
             isNullable: false,
           },
-          {
-            name: 'deleted_at',
-            type: 'timestamp',
-            isNullable: true,
-          },
         ],
-      })
+      }),
+      true
     );
-
-    // Create unique index on "email" where "deleted_at" is null
-    await queryRunner.query(`
-      CREATE UNIQUE INDEX "UQ_users_email_not_deleted"
-      ON "users" ("email")
-      WHERE "deleted_at" IS NULL;
-    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop the unique index on "users" table
-    await queryRunner.query(`
-      DROP INDEX "UQ_users_email_not_deleted";
-    `);
 
-    // Drop the "users" table
-    await queryRunner.dropTable('users');
-
+    await queryRunner.dropTable('outbox_message');
   }
 }

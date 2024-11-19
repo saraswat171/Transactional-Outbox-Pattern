@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'ormconfig';
+import { RegisterUserModule } from './features/user/register-user/register-user.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }),
@@ -13,6 +14,7 @@ import { dataSourceOptions } from 'ormconfig';
         dataSourceOptions(configService),
       inject: [ConfigService],
     }),
+    RegisterUserModule
   ],
   controllers: [AppController],
   providers: [AppService],
